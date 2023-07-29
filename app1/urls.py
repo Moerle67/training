@@ -20,5 +20,5 @@ from . import views
 
 urlpatterns = [
     path('', views.start, name = "start"),
-    path('anmeldung', views.anmeldung, name = "anmeldung"),
+    path('anmeldung/<str:rtn_name>', views.anmeldung, name = "anmeldung"),
 ]

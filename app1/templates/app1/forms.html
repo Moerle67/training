@@ -1,0 +1,12 @@
+{% extends 'app1/basis.html' %}
+{% load django_bootstrap5 %}
+{% block h1 %}Anmeldung{% endblock h1 %}
+{% block content %}
+    <div class="col-md-5">
+        <form method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <input type="submit" value="Speichern" class="btn btn-success">
+        </form>
+    </div>
+{% endblock content %}
