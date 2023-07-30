@@ -53,17 +53,20 @@ def abmeldung(request, rtn_name):
 def newpwd(request, rtn_name):
     if request.method == "POST":
      # create a form instance and populate it with data from the request:
-        form = AnmeldeForm(request.POST)
+        form = New_pwdForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
             error = False
             pwd_old = request.POST['pwd_old']
             pwd_new1 = request.POST['pwd_new1']
             pwf_new2 = request.POST['pwd_new2']
-            
-        
+            if pwd_new1 != pwf_new2:
+                messages.error(request, "Passwörter stimmen nicht überein")
+                error = True
+            if not request.user.check_password(pwd_old):
+                messages.error(request, "Altes Passwort ist falsch")    
     else:
-        form = new_pwdForm()
+        form = New_pwdForm()
         return render(request, "app1/forms.html", {"form": form})
             
            # return render(request, "app1/forms.html", {"form": form})
