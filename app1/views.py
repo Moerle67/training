@@ -30,7 +30,7 @@ def anmeldung(request, rtn_name):
             return redirect(rtn_name)
         # If the user is not authenticated, display an error message and redirect to the home page
         else:
-            messages.info(request, 'Name/Passwort falsch')
+            messages.error(request, 'Name/Passwort falsch')
             data = {
                 'name': username,
                 'password': password,
@@ -48,4 +48,25 @@ def anmeldung(request, rtn_name):
 def abmeldung(request, rtn_name):
     logout(request)
     messages.success(request, 'Logout erfolgreich')
+    return redirect(rtn_name)
+
+def newpwd(request, rtn_name):
+    if request.method == "POST":
+     # create a form instance and populate it with data from the request:
+        form = AnmeldeForm(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+            error = False
+            pwd_old = request.POST['pwd_old']
+            pwd_new1 = request.POST['pwd_new1']
+            pwf_new2 = request.POST['pwd_new2']
+            
+        
+    else:
+        form = new_pwdForm()
+        return render(request, "app1/forms.html", {"form": form})
+            
+           # return render(request, "app1/forms.html", {"form": form})
+
+           
     return redirect(rtn_name)

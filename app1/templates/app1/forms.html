@@ -6,7 +6,9 @@
         <form method="post">
             {% csrf_token %}
             {% bootstrap_form form %}
-            <input type="submit" value="Speichern" class="btn btn-success">
+            {% for button in form.buttons %}
+                <input type="submit" value="{{button.0}}" class="btn btn-{{button.1}} me-2">
+            {% endfor %}
         </form>
     </div>
 {% endblock content %}
