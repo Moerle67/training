@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -5,6 +6,8 @@ from .forms import *
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.password_validation import validate_password
+
 # Create your views here.
 
 def start(request):
@@ -61,10 +64,31 @@ def newpwd(request, rtn_name):
             pwd_new1 = request.POST['pwd_new1']
             pwf_new2 = request.POST['pwd_new2']
             if pwd_new1 != pwf_new2:
-                messages.error(request, "Passwörter stimmen nicht überein")
+                messages.error(request, "neue Passwörter stimmen nicht überein")
+                error = True
+            elif pwd_old == pwd_new1:
+                messages.error(request, "Altes und neues Passwort dürfen nicht übereinstimmen")
                 error = True
             if not request.user.check_password(pwd_old):
-                messages.error(request, "Altes Passwort ist falsch")    
+                messages.error(request, "Altes Passwort ist falsch")
+                error = True
+            if not error:
+                try :
+                    validate_password(pwd_new1, user=None, password_validators=None)
+                except ValidationError as va_err:
+                    for message in va_err.messages:
+                        messages.error(request, message)
+                    error= True
+            if not error:
+                request.user.set_password(pwd_new1)
+                request.user.save()
+                messages.success(request, "Passwort erfolgreich geändert.")
+                messages.success(request, "Bitte melden Sie sich neu an.")
+                return redirect(rtn_name)
+            else:
+                print(rtn_name)
+                return redirect("/newpwd/"+rtn_name)
+
     else:
         form = New_pwdForm()
         return render(request, "app1/forms.html", {"form": form})
