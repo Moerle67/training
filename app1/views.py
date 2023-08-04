@@ -51,7 +51,7 @@ def anmeldung(request, rtn_name):
 def abmeldung(request, rtn_name):
     logout(request)
     messages.success(request, 'Logout erfolgreich')
-    return redirect(rtn_name)
+    return redirect("/"+rtn_name)
 
 def newpwd(request, rtn_name):
     if request.method == "POST":
