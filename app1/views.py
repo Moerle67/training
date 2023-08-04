@@ -51,7 +51,7 @@ def anmeldung(request, rtn_name):
 def abmeldung(request, rtn_name):
     logout(request)
     messages.success(request, 'Logout erfolgreich')
-    return redirect("/"+rtn_name)
+    return redirect(rtn_name)
 
 def newpwd(request, rtn_name):
     if request.method == "POST":
@@ -93,7 +93,9 @@ def newpwd(request, rtn_name):
         form = New_pwdForm()
         return render(request, "app1/forms.html", {"form": form})
             
-           # return render(request, "app1/forms.html", {"form": form})
-
-           
+           # return render(request, "app1/forms.html", {"form": form}) 
     return redirect(rtn_name)
+
+def reg(request, rtn_name):
+    form = RegForm()
+    return render(request, "app1/forms.html", {"form": form})
