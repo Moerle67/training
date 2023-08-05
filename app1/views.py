@@ -97,5 +97,49 @@ def newpwd(request, rtn_name):
     return redirect(rtn_name)
 
 def reg(request, rtn_name):
+    if request.method == "POST":
+        # create a form instance and populate it with data from the request:
+        form = RegForm(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+            error = False
+            username = request.POST['username']
+            first_name = request.POST['first_name']
+            last_name = request.POST['last_name']
+            pwd_new1 = request.POST['pwd_new1']
+            pwf_new2 = request.POST['pwd_new2']
+            if pwd_new1 != pwf_new2:
+                messages.error(request, "neue Passwörter stimmen nicht überein")
+                error = True
+            if User.objects.filter(username=username).exists():
+                # Add an information message to the current request
+                messages.error(request, 'Benutzername gibt es schon')
+                error = True
+            if not error:
+                try :
+                    validate_password(pwd_new1, user=None, password_validators=None)
+                except ValidationError as va_err:
+                    for message in va_err.messages:
+                        messages.error(request, message)
+                    error= True
+            if not error:
+                user = User.objects.create_user(
+                    username=username, password=pwd_new1)
+                user.first_name = first_name
+                user.last_name = last_name
+                user.save()
+                messages.success(request, "Benutzer erfolgreich erstellt.")
+                messages.success(request, "Bitte melden Sie sich an.")
+                return redirect(rtn_name)
+            else:
+                data = {
+                    'username': username,
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'pwd_new1': pwd_new1,
+                    'pwd_new2': pwf_new2,
+            }
+            form = RegForm(data)
+            return render(request, "app1/forms.html", {"form": form})               
     form = RegForm()
     return render(request, "app1/forms.html", {"form": form})
