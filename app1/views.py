@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
+from .moerli import number
 
 # Create your views here.
 
@@ -100,7 +101,6 @@ def reg(request, rtn_name):
     if request.method == "POST":
         # create a form instance and populate it with data from the request:
         form = RegForm(request.POST)
-        # check whether it's valid:
         if form.is_valid():
             error = False
             username = request.POST['username']
@@ -143,3 +143,51 @@ def reg(request, rtn_name):
             return render(request, "app1/forms.html", {"form": form})               
     form = RegForm()
     return render(request, "app1/forms.html", {"form": form})
+
+def bindec(request):
+    max = 5
+    if request.method == "POST":
+        form = QuestForm(request.POST)
+        if form.is_valid():
+            erg=[]
+            zahlen = []
+            fehler = False
+            # Auslesen Formular
+            for i in range(max):
+                erg.append((request.POST['aufgabe'+str(i+1)], request.POST['zahl'+str(i+1)]))
+                zahlen.append(number(bin=request.POST['aufgabe'+str(i+1)]))
+                print(zahlen[i].get_dec(), int(request.POST['zahl'+str(i+1)]))
+                if zahlen[i].get_dec() != int(request.POST['zahl'+str(i+1)]):
+                    messages.error(request, f"Aufgabe{i+1} nicht korrekt.")
+                    fehler = True
+            if fehler:
+                # Formular initialisieren
+                data = {}
+                for i in range(max):
+                    data["aufgabe"+str(i+1)] = erg[i][0]
+                    data["zahl"+str(i+1)] = erg[i][1]
+                form = QuestForm(data)
+                content = {
+                    "form": form,
+                    "h1": "Übungen Bin --> Dec",
+                }
+                return render(request, "app1/forms.html", content)               
+            else:
+                messages.success(request, "Sehr gut, alles richtig!")
+        return redirect("/bindec")
+    else:
+        # Initialisierung Formular
+        zahlen = []
+        for i in range(max):
+            zahlen.append(number())
+        data = {}
+        for i in range(max):
+            data["aufgabe"+str(i+1)] = zahlen[i].get_bin()
+            data["zahl"+str(i+1)] = "0"
+
+        form = QuestForm(data)
+        content = {
+            "form": form,
+            "h1": "Übungen Bin --> Dec",
+        }
+        return render(request, "app1/forms.html", content)               
