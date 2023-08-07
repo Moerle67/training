@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
+from .models import *
 from .moerli import number
 
 # Create your views here.
@@ -152,6 +153,7 @@ def bindec(request):
             erg=[]
             zahlen = []
             fehler = False
+            fehler_val = 0
             # Auslesen Formular
             for i in range(max):
                 erg.append((request.POST['aufgabe'+str(i+1)], request.POST['zahl'+str(i+1)]))
@@ -160,6 +162,7 @@ def bindec(request):
                 if zahlen[i].get_dec() != int(request.POST['zahl'+str(i+1)]):
                     messages.error(request, f"Aufgabe{i+1} nicht korrekt.")
                     fehler = True
+                    fehler_val += 1
             if fehler:
                 # Formular initialisieren
                 data = {}
@@ -171,9 +174,14 @@ def bindec(request):
                     "form": form,
                     "h1": "Übungen Bin --> Dec",
                 }
+                ergebnis = int(((max-fehler_val)/max)*100)
+                ds = Bewertung(user=request.user, uebung="bindec", ergebnis=ergebnis)
+                ds.save()
                 return render(request, "app1/forms.html", content)               
             else:
                 messages.success(request, "Sehr gut, alles richtig!")
+                ds = Bewertung(user=request.user, uebung="bindec", ergebnis=100)
+                ds.save()
         return redirect("/bindec")
     else:
         # Initialisierung Formular
